@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Mi Mejor Versión — A&B Club de Golf Hacienda (simulación)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0B2140; --navy-mid:#15335C; --paper:#F5F7FB; --card:#FFFFFF; --ink:#16233A; --muted:#5B6B82;
+    --line:#E4E9F2; --gold:#E8A33D; --exc:#2E9166; --alto:#3E7CB1; --medio:#D9A62E; --bajo:#D9773B; --crit:#C0453B;
+    --c1:#0B2140; --c2:#3E7CB1; --c3:#2E9166; --c4:#E8A33D; --c5:#8A6BB8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); padding-bottom:60px; -webkit-font-smoothing:antialiased;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header.top{background:linear-gradient(135deg,var(--navy-deep),var(--navy-mid)); color:#fff; padding:36px 5vw 52px; position:relative; overflow:hidden;}
+  header.top::after{content:""; position:absolute; right:-60px; top:-60px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle, rgba(232,163,61,0.18), transparent 70%);}
+  .top-row{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; position:relative; z-index:1;}
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:8px;}
+  h1.title{font-family:'Space Grotesk',sans-serif; font-size:clamp(24px,4vw,38px); font-weight:700; line-height:1.05;}
+  .subtitle{color:rgba(255,255,255,0.65); font-size:14px; margin-top:6px;}
+  .top-stats{display:flex; gap:22px; text-align:right;}
+  .top-stat .num{font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700;}
+  .top-stat .lbl{font-size:10px; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:.06em; margin-top:2px;}
+
+  main{max-width:1280px; margin:0 auto; padding:0 5vw;}
+  section{margin-top:30px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:0 1px 2px rgba(16,35,64,0.04);}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .section-head h2{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}
+  .section-note{font-size:12.5px; color:var(--muted);}
+
+  .info-banner{margin-top:-30px; position:relative; z-index:2; background:#FFF8EC; border:1px dashed var(--gold); border-radius:14px; padding:14px 22px; font-size:13px; color:var(--ink); font-weight:600; text-align:center;}
+
+  .filters{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:18px;}
+  .chip{font-family:'Inter'; font-size:12px; font-weight:600; padding:7px 14px; border-radius:20px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;}
+  .chip.on{background:var(--navy-deep); color:#fff; border-color:var(--navy-deep);}
+
+  /* HERO */
+  .hero{display:grid; grid-template-columns:minmax(220px,1fr) minmax(240px,1fr) minmax(360px,2fr); gap:0; margin-top:18px;}
+  @media (max-width:980px){ .hero{grid-template-columns:1fr;} .hero > .card{border-radius:16px !important; margin-bottom:12px;} }
+  .ring-panel{padding:28px 22px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;}
+  .ring-panel.left{background:linear-gradient(160deg,#FFFDF8,#FFF); border-radius:16px 0 0 16px;}
+  .ring-tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; font-weight:700;}
+  .ring-wrap{position:relative;}
+  .ring-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring-pct{font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700;}
+  .ring-lbl{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+  .ring-caption{margin-top:14px; font-size:12px; color:var(--muted); line-height:1.5;}
+  .comp-legend{margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; font-size:10.5px; color:var(--muted); text-align:left;}
+  .comp-legend span{display:flex; align-items:center; gap:5px;}
+
+  .grid-card{padding:24px 20px; display:flex; flex-direction:column; justify-content:center; border-radius:0; border-left:none; border-right:none;}
+  .grid-card-head{text-align:center; margin-bottom:16px;}
+  .grid-card-head h3{font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600;}
+  .legend{display:flex; gap:10px; flex-wrap:wrap; font-size:10.5px; color:var(--muted); justify-content:center; margin-top:6px;}
+  .legend span{display:inline-flex; align-items:center; gap:4px;}
+  .dot{width:8px; height:8px; border-radius:2px; display:inline-block;}
+  .habit-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; width:100%; max-width:200px; margin:0 auto;}
+  .habit-cell{aspect-ratio:1; border-radius:3px;}
+
+  .kpi-panel{padding:24px 22px; background:linear-gradient(200deg,#EFF6FA,#FFF); border-radius:0 16px 16px 0;}
+  .kpi-panel .ring-tag{text-align:center;}
+  .kpi-balls{display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:14px 8px; margin-top:6px;}
+  .ball{display:flex; flex-direction:column; align-items:center; text-align:center;}
+  .ball .bpct{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700;}
+  .ball .bname{font-size:11px; font-weight:600; margin-top:8px; line-height:1.25;}
+  .ball .bmeta{font-size:10px; color:var(--muted); margin-top:2px;}
+  .kpi-general{margin-top:16px; display:flex; justify-content:center; gap:10px; align-items:center; font-size:12px; color:var(--navy-deep); font-weight:700; background:#FFF8EC; padding:7px 12px; border-radius:10px; border:1px solid var(--gold);}
+
+  /* KPI ROW */
+  .kpi-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:760px){ .kpi-row{grid-template-columns:repeat(2,1fr);} }
+  .kpi{padding:18px 20px;}
+  .kpi .num{font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700;}
+  .kpi .lbl{font-size:12px; color:var(--muted); margin-top:4px;}
+
+  /* TABLE */
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  thead th{text-align:center; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:bottom;}
+  thead th.l{text-align:left;}
+  thead tr.grp th{border-bottom:none; padding-bottom:2px; font-size:9.5px; color:var(--navy-mid);}
+  tbody td{padding:9px 8px; border-bottom:1px solid var(--line); text-align:center;}
+  tbody td.l{text-align:left;}
+  tbody tr:hover{background:#FAFBFD;}
+  .stack{display:flex; height:10px; border-radius:20px; overflow:hidden; background:var(--line); min-width:150px; flex:1;}
+  .stack i{display:block; height:100%;}
+  .stack-cell{display:flex; align-items:center; gap:8px;}
+  .kval{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; padding:3px 7px; border-radius:7px;}
+  .badge{display:inline-block; padding:3px 9px; border-radius:20px; font-size:10.5px; font-weight:700; color:#fff; white-space:nowrap;}
+  .sep{border-left:2px solid var(--line);}
+  .table-wrap{overflow-x:auto;}
+  .table-note{margin-top:12px; font-size:12px; color:var(--muted); background:#FAFBFD; border:1px dashed var(--line); padding:10px 14px; border-radius:10px; line-height:1.55;}
+  .perfil{font-size:11px; color:var(--muted);}
+
+  /* QUADRANT */
+  .quad-card{padding:22px;}
+  .quad-outer{display:grid; grid-template-columns:28px 1fr; grid-template-rows:1fr 28px; gap:6px;}
+  .y-axis{writing-mode:vertical-rl; transform:rotate(180deg); text-align:center; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; display:flex; justify-content:space-between;}
+  .x-axis{grid-column:2; display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase;}
+  .quad{position:relative; height:640px; border-radius:12px; overflow:hidden; border:1px solid var(--line);}
+  .qbg{position:absolute; display:flex; padding:12px 14px; flex-direction:column;}
+  .qbg h4{font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;}
+  .qbg p{font-size:11px; color:var(--muted); margin-top:2px; max-width:240px;}
+  .qbg .qcount{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; margin-top:4px;}
+  .q-tl{left:0; top:0; background:#F2F7FC;} .q-tr{right:0; top:0; background:#EEF8F2; align-items:flex-end; text-align:right;}
+  .q-bl{left:0; bottom:0; background:#FDF3EC; justify-content:flex-end;} .q-br{right:0; bottom:0; background:#FFF8E8; align-items:flex-end; text-align:right; justify-content:flex-end;}
+  .qline-v,.qline-h{position:absolute; background:var(--navy-mid); opacity:.35;}
+  .qline-v{width:2px; top:0; bottom:0;} .qline-h{height:2px; left:0; right:0;}
+  .qline-lbl{position:absolute; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--navy-mid); background:#fff; padding:1px 5px; border-radius:5px; border:1px solid var(--line);}
+  .pt{position:absolute; width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px rgba(11,33,64,.25); transform:translate(-50%,-50%); z-index:3;}
+  .nm{position:absolute; font-size:11px; font-weight:600; background:rgba(255,255,255,.92); padding:2px 7px; border-radius:7px; border:1px solid var(--line); white-space:nowrap; z-index:4; cursor:default;}
+  .lead{position:absolute; height:1px; background:#9AA7BA; transform-origin:0 0; z-index:2;}
+  .quad-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:11px; color:var(--muted); margin-top:14px;}
+  .quad-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .quad-legend i{width:10px; height:10px; border-radius:50%; display:inline-block;}
+
+  footer{margin-top:40px; text-align:center; font-size:12px; color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-row">
+    <div>
+      <div class="eyebrow">Simulación · Semana 2 · Mi Mejor Versión</div>
+      <h1 class="title">Dashboard Adopción + KPIs del Club</h1>
+      <div class="subtitle">Alimentos y Bebidas · Club de Golf Hacienda · Por mí · Para mi familia · Para nuestros socios</div>
+    </div>
+    <div class="top-stats">
+      <div class="top-stat"><div class="num" id="tsPeople">20</div><div class="lbl">Colaboradores</div></div>
+      <div class="top-stat"><div class="num" id="tsProfiles">7</div><div class="lbl">Perfiles</div></div>
+      <div class="top-stat"><div class="num">5</div><div class="lbl">KPIs del club</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="info-banner">🧪 Dashboard <b>simulado con datos ficticios</b> para mostrar el formato. Los KPIs del lado derecho son una propuesta de ejemplo — se sustituyen por los que defina el club (pueden ser 3, 5 o los que sean; el tablero se ajusta solo).</div>
+
+  <div class="filters" id="filters"></div>
+
+  <!-- HERO -->
+  <section class="hero" style="margin-top:16px;">
+    <div class="card ring-panel left">
+      <div class="ring-tag">Microhábitos</div>
+      <div class="ring-wrap" id="adoptRing"></div>
+      <div class="ring-caption">Índice de adopción acumulado<br>(todo lo que debe hacer cada persona)</div>
+      <div class="comp-legend" id="compLegend"></div>
+    </div>
+
+    <div class="card grid-card">
+      <div class="grid-card-head">
+        <h3>Mapa por persona — <span id="mapCount">20</span></h3>
+        <div class="legend" id="levelLegend"></div>
+      </div>
+      <div class="habit-grid" id="habitGrid"></div>
+    </div>
+
+    <div class="card kpi-panel">
+      <div class="ring-tag">KPIs propuestos por el club</div>
+      <div class="kpi-balls" id="kpiBalls"></div>
+      <div class="kpi-general">KPI general promedio: <span class="mono" id="kpiGen">—</span> <span style="font-weight:500; color:var(--muted);">· meta</span> <span class="mono" id="kpiGenMeta">—</span></div>
+    </div>
+  </section>
+
+  <!-- KPI ROW -->
+  <section class="kpi-row">
+    <div class="card kpi"><div class="num" id="kTop" style="color:var(--exc)">—</div><div class="lbl">Referentes (adopción alta + KPI alto)</div></div>
+    <div class="card kpi"><div class="num" id="kNat" style="color:var(--alto)">—</div><div class="lbl">Talento natural (KPI alto, adopción baja)</div></div>
+    <div class="card kpi"><div class="num" id="kLearn" style="color:var(--medio)">—</div><div class="lbl">En aprendizaje (adopción alta, KPI bajo)</div></div>
+    <div class="card kpi"><div class="num" id="kHelp" style="color:var(--bajo)">—</div><div class="lbl">Prioridad de acompañamiento</div></div>
+  </section>
+
+  <!-- TABLA POR PERSONA -->
+  <section>
+    <div class="section-head">
+      <h2>Por persona — adopción acumulada y KPIs del club</h2>
+      <div class="section-note">Una sola columna de adopción + una columna por cada KPI</div>
+    </div>
+    <div class="card" style="padding:20px 22px;">
+      <div class="table-wrap">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-note">
+        <b>Adopción acumulada</b> = promedio de las 5 actividades que le tocan a cada persona (videos vistos, juego, evidencia, reunión de calibración y sesión individual); la barra muestra cuánto aporta cada una. <b>KPI general</b> = promedio simple de los KPIs del club para esa persona. Colores de KPI: <span style="color:var(--exc); font-weight:700;">verde</span> en meta · <span style="color:var(--medio); font-weight:700;">ámbar</span> a menos de 10 pts · <span style="color:var(--crit); font-weight:700;">rojo</span> a más de 10 pts de la meta.
+      </div>
+    </div>
+  </section>
+
+  <!-- CUADRANTES -->
+  <section>
+    <div class="section-head">
+      <h2>Matriz de 4 cuadrantes — Adopción vs. KPI general</h2>
+      <div class="section-note">Cada nombre está colocado según su adopción (X) y su KPI general promedio (Y)</div>
+    </div>
+    <div class="card quad-card">
+      <div class="quad-outer">
+        <div class="y-axis"><span>Bajo</span><span>KPI general promedio →</span><span>Alto</span></div>
+        <div class="quad" id="quad"></div>
+        <div class="x-axis"><span>Bajo</span><span>Adopción de microhábitos →</span><span>Alto</span></div>
+      </div>
+      <div class="quad-legend" id="quadLegend"></div>
+      <div class="kpi-row" id="quadCards" style="margin-top:14px;"></div>
+      <div class="table-note" style="margin-top:14px;">Cortes del ejemplo: adopción <b>70%</b> y KPI general <b>80%</b> (ajustables). El lenguaje de los cuadrantes está pensado para acompañar, no para señalar: la pregunta para cada persona es <b>“¿cómo te puedo ayudar?”</b>.</div>
+    </div>
+  </section>
+</main>
+
+<footer>Dashboard Mi Mejor Versión · A&B Club de Golf Hacienda · Simulación con datos ficticios</footer>
+
+<script>
+// ---------- CONFIG (editar aquí) ----------
+const COMPONENTS = [
+  {key:'videos',  name:'Videos vistos',        color:'#0B2140'},
+  {key:'juego',   name:'Juego / quiz',         color:'#3E7CB1'},
+  {key:'evid',    name:'Evidencia en piso',    color:'#2E9166'},
+  {key:'reunion', name:'Reunión de calibración',color:'#E8A33D'},
+  {key:'indiv',   name:'Sesión individual',    color:'#8A6BB8'},
+];
+// KPIs del club: agrega o quita los que sean — todo el tablero se adapta
+const KPIS = [
+  {key:'sat',  name:'Satisfacción del socio', short:'Socio “Impecable”', meta:90},
+  {key:'hig',  name:'Higiene e inocuidad',    short:'Higiene',           meta:95},
+  {key:'img',  name:'Imagen y uniforme',      short:'Imagen',            meta:90},
+  {key:'tie',  name:'Tiempo de servicio',     short:'Tiempo',            meta:85},
+  {key:'pun',  name:'Puntualidad y asistencia',short:'Puntualidad',      meta:95},
+];
+const CUT_X = 70, CUT_Y = 80;           // cortes de los cuadrantes
+const Y_MIN = 50, Y_MAX = 106;  const X_MIN = -4, X_MAX = 112;          // rango del eje Y (KPI)
+
+const GROUPS = {
+  'Servicio':  ['Mesero','Capitán','Garrotero'],
+  'Cocina':    ['Cocinero','Jefe de partida','Steward'],
+  'Bebidas':   ['Bartender'],
+  'Banquetes': ['Banquetes'],
+};
+
+// [videos, juego, evidencia, reunión, individual] · [sat, hig, img, tiempo, puntualidad]
+const PEOPLE = [
+  ['Ana Morales','Mesero',          [100,100,90,100,100],[95,96,98,92,100]],
+  ['Carlos Reyes','Mesero',         [80,70,60,100,0],    [88,85,90,86,95]],
+  ['Lucía Ortega','Mesero',         [100,90,80,100,100], [92,94,95,90,98]],
+  ['Raúl Medina','Capitán',         [100,100,100,100,100],[90,92,96,88,100]],
+  ['Pedro Salinas','Mesero',        [40,30,0,100,0],     [70,72,80,68,85]],
+  ['Jorge Cruz','Cocinero',         [100,80,70,100,100], [78,70,82,80,90]],
+  ['Mariana Vega','Cocinero',       [60,50,40,0,100],    [94,95,92,90,96]],
+  ['Tomás Ibarra','Cocinero',       [20,0,0,0,0],        [62,58,70,65,80]],
+  ['Rosa Delgado','Cocinero',       [100,100,80,100,100],[90,93,88,89,97]],
+  ['Héctor Ruiz','Jefe de partida', [80,80,60,100,100],  [86,90,92,84,98]],
+  ['Daniel Ponce','Bartender',      [100,100,100,100,0], [72,76,80,70,88]],
+  ['Sofía Lara','Bartender',        [100,90,90,100,100], [96,92,95,94,100]],
+  ['Iván Rosales','Bartender',      [40,40,20,100,0],    [85,88,84,86,92]],
+  ['Elena Campos','Banquetes',      [100,100,90,100,100],[70,78,74,72,90]],
+  ['Martín Aguilar','Banquetes',    [60,40,20,0,0],      [68,64,72,70,82]],
+  ['Gabriela Núñez','Banquetes',    [80,60,60,100,100],  [88,90,86,82,94]],
+  ['Luis Fuentes','Steward',        [100,80,60,100,100], [74,72,78,76,86]],
+  ['Ramón Torres','Steward',        [20,10,0,0,0],       [80,84,82,80,92]],
+  ['Patricia Solís','Garrotero',    [80,70,40,100,0],    [76,74,70,78,84]],
+  ['Óscar Bravo','Garrotero',       [0,0,0,0,0],         [60,62,66,64,74]],
+].map(([name,perfil,c,k])=>{
+  const comp={}; COMPONENTS.forEach((x,i)=>comp[x.key]=c[i]);
+  const kpi={};  KPIS.forEach((x,i)=>kpi[x.key]=k[i]);
+  const adop = c.reduce((a,b)=>a+b,0)/c.length;
+  const kgen = KPIS.reduce((a,x)=>a+kpi[x.key],0)/KPIS.length;
+  return {name,perfil,comp,kpi,adop,kgen};
+});
+
+const LEVELS = [
+  {n:'Excelente',min:90,c:'#2E9166'},{n:'Alto',min:75,c:'#3E7CB1'},
+  {n:'Medio',min:60,c:'#D9A62E'},{n:'Bajo',min:40,c:'#D9773B'},{n:'Crítico',min:0,c:'#C0453B'},
+];
+const level = v => LEVELS.find(l=>v>=l.min);
+const QUADS = {
+  tr:{n:'Referentes',            d:'Viven el programa y se nota en el socio. Invitarlos a compartir lo que hacen.', c:'#2E9166'},
+  tl:{n:'Talento natural',       d:'Buenos resultados, poca participación. Invitarlos a enseñar en las sesiones.', c:'#3E7CB1'},
+  br:{n:'En aprendizaje',        d:'Participan mucho, el resultado aún no llega. Acompañar en piso.',             c:'#D9A62E'},
+  bl:{n:'Prioridad de acompañamiento', d:'Primer paso: plática individual — ¿cómo te puedo ayudar?',              c:'#D9773B'},
+};
+const quadOf = p => (p.kgen>=CUT_Y ? 't':'b') + (p.adop>=CUT_X ? 'r':'l');
+const kColor = (v,meta) => v>=meta ? ['#2E9166','#EAF6EF'] : (meta-v<=10 ? ['#B8860B','#FFF6E0'] : ['#C0453B','#FCEDEB']);
+const f0 = v => Math.round(v)+'%';
+const avg = (arr,fn) => arr.length ? arr.reduce((a,x)=>a+fn(x),0)/arr.length : 0;
+
+function ring(pct,size,stroke,color,inner){
+  const r=(size-stroke)/2, C=2*Math.PI*r, off=C*(1-Math.max(0,Math.min(100,pct))/100);
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px">
+    <svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#E4E9F2" stroke-width="${stroke}"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+    </svg><div class="ring-center">${inner}</div></div>`;
+}
+
+// ---------- FILTROS ----------
+let current = 'Todos';
+const fEl = document.getElementById('filters');
+['Todos',...Object.keys(GROUPS)].forEach(g=>{
+  const b=document.createElement('button'); b.className='chip'+(g===current?' on':''); b.textContent=g;
+  b.onclick=()=>{current=g; [...fEl.children].forEach(x=>x.classList.toggle('on',x.textContent===g)); render();};
+  fEl.appendChild(b);
+});
+
+// leyendas fijas
+document.getElementById('compLegend').innerHTML = COMPONENTS.map(c=>`<span><i class="dot" style="background:${c.color}"></i>${c.name}</span>`).join('');
+document.getElementById('quadLegend').innerHTML = Object.entries(GROUPS).map(([g],i)=>`<span><i style="background:${['#0B2140','#C0453B','#3E7CB1','#8A6BB8'][i]}"></i>${g}</span>`).join('');
+const groupColor = perfil => { const i=Object.values(GROUPS).findIndex(a=>a.includes(perfil)); return ['#0B2140','#C0453B','#3E7CB1','#8A6BB8'][i]; };
+const groupOf = perfil => Object.keys(GROUPS).find(g=>GROUPS[g].includes(perfil));
+
+function render(){
+  const P = PEOPLE.filter(p=> current==='Todos' || GROUPS[current].includes(p.perfil));
+  document.getElementById('tsPeople').textContent = P.length;
+  document.getElementById('tsProfiles').textContent = new Set(P.map(p=>p.perfil)).size;
+  document.getElementById('mapCount').textContent = P.length + (P.length===1?' persona':' personas');
+
+  // anillo adopción
+  const A = avg(P,p=>p.adop);
+  document.getElementById('adoptRing').outerHTML = `<div id="adoptRing">${ring(A,150,15,'#E8A33D',`<div class="ring-pct" style="color:var(--navy-deep)">${f0(A)}</div><div class="ring-lbl">Adopción</div>`)}</div>`;
+
+  // mapa
+  const sorted=[...P].sort((a,b)=>b.adop-a.adop);
+  document.getElementById('habitGrid').innerHTML = sorted.map(p=>{const l=level(p.adop); return `<div class="habit-cell" style="background:${l.c}" title="${p.name} · ${f0(p.adop)} · ${l.n}"></div>`;}).join('');
+  document.getElementById('levelLegend').innerHTML = LEVELS.map(l=>`<span><i class="dot" style="background:${l.c}"></i>${l.n} ${P.filter(p=>level(p.adop)===l).length}</span>`).join('');
+
+  // bolas KPI
+  document.getElementById('kpiBalls').innerHTML = KPIS.map(k=>{
+    const v=avg(P,p=>p.kpi[k.key]); const [c]=kColor(v,k.meta);
+    return `<div class="ball">${ring(v,92,9,c,`<div class="bpct" style="color:${c}">${f0(v)}</div>`)}
+      <div class="bname">${k.name}</div><div class="bmeta">meta ${k.meta}% · ${P.filter(p=>p.kpi[k.key]>=k.meta).length}/${P.length} en meta</div></div>`;
+  }).join('');
+  const KG=avg(P,p=>p.kgen);
+  document.getElementById('kpiGen').textContent=f0(KG);
+  document.getElementById('kpiGenMeta').textContent=CUT_Y+'%';
+
+  // contadores cuadrantes
+  const cnt={tr:0,tl:0,br:0,bl:0}; P.forEach(p=>cnt[quadOf(p)]++);
+  kTop.textContent=cnt.tr; kNat.textContent=cnt.tl; kLearn.textContent=cnt.br; kHelp.textContent=cnt.bl;
+
+  // tabla
+  document.getElementById('thead').innerHTML = `
+    <tr class="grp"><th colspan="2"></th><th class="l">Microhábitos</th><th class="sep" colspan="${KPIS.length+1}">KPIs del club</th><th></th></tr>
+    <tr><th class="l">Nombre</th><th class="l">Perfil</th><th class="l">Adopción acumulada</th>
+    ${KPIS.map((k,i)=>`<th class="${i===0?'sep':''}">${k.short}<br><span style="font-weight:500; text-transform:none; letter-spacing:0">meta ${k.meta}%</span></th>`).join('')}
+    <th>KPI general</th><th>Cuadrante</th></tr>`;
+  document.getElementById('tbody').innerHTML = sorted.map(p=>{
+    const l=level(p.adop), q=QUADS[quadOf(p)];
+    const segs = COMPONENTS.map(c=>`<i style="width:${p.comp[c.key]/COMPONENTS.length}%; background:${c.color}" title="${c.name}: ${p.comp[c.key]}%"></i>`).join('');
+    const kc = KPIS.map((k,i)=>{const [c,bg]=kColor(p.kpi[k.key],k.meta); return `<td class="${i===0?'sep':''}"><span class="kval" style="color:${c}; background:${bg}">${p.kpi[k.key]}</span></td>`;}).join('');
+    const [gc,gbg]=kColor(p.kgen,CUT_Y);
+    return `<tr><td class="l" style="font-weight:600">${p.name}</td><td class="l perfil">${p.perfil}</td>
+      <td class="l"><div class="stack-cell"><div class="stack">${segs}</div><span class="mono" style="font-weight:700; color:${l.c}; min-width:38px; text-align:right">${f0(p.adop)}</span></div></td>
+      ${kc}<td><span class="kval" style="color:${gc}; background:${gbg}; font-size:13px">${p.kgen.toFixed(1)}</span></td>
+      <td><span class="badge" style="background:${q.c}">${q.n}</span></td></tr>`;
+  }).join('');
+
+  drawQuad(P,cnt);
+  document.getElementById('quadCards').innerHTML = ['tr','tl','br','bl'].map(q=>`<div class="card" style="padding:12px 14px; border-left:4px solid ${QUADS[q].c}"><div style="font-family:'Space Grotesk'; font-weight:700; color:${QUADS[q].c}">${QUADS[q].n} · ${cnt[q]}</div><div style="font-size:11.5px; color:var(--muted); margin-top:3px">${QUADS[q].d}</div></div>`).join('');
+}
+
+function drawQuad(P,cnt){
+  const el=document.getElementById('quad'); el.innerHTML='';
+  const W=el.clientWidth, H=el.clientHeight;
+  const xp = v => ((v-X_MIN)/(X_MAX-X_MIN))*W;
+  const yp = v => H - ((Math.max(Y_MIN,v)-Y_MIN)/(Y_MAX-Y_MIN))*H;
+  const cx=xp(CUT_X), cy=yp(CUT_Y);
+  const box=(cls,l,t,w,h,q)=>`<div class="qbg ${cls}" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"><h4 style="color:${QUADS[q].c}; font-size:12px; opacity:.85">${QUADS[q].n} · ${cnt[q]}</h4></div>`;
+  el.innerHTML = box('q-tl',0,0,cx,cy,'tl')+box('',cx,0,W-cx,cy,'tr').replace('qbg ','qbg q-tr ')
+    + box('q-bl',0,cy,cx,H-cy,'bl') + box('',cx,cy,W-cx,H-cy,'br').replace('qbg ','qbg q-br ')
+    + `<div class="qline-v" style="left:${cx-1}px"></div><div class="qline-h" style="top:${cy-1}px"></div>`
+    + `<div class="qline-lbl" style="left:${cx+6}px; top:${H-22}px">adopción ${CUT_X}%</div>`
+    + `<div class="qline-lbl" style="left:6px; top:${cy+6}px">KPI ${CUT_Y}%</div>`;
+  // los cuadros de fondo se dibujan por posición absoluta, quitar clases de esquina que fijan right/bottom
+  el.querySelectorAll('.qbg').forEach(b=>{b.style.right='auto'; b.style.bottom='auto';});
+
+  // puntos + etiquetas
+  const labels=[];
+  P.forEach(p=>{
+    const x=xp(p.adop), y=yp(p.kgen), col=groupColor(p.perfil);
+    const d=document.createElement('div'); d.className='pt'; d.style.left=x+'px'; d.style.top=y+'px'; d.style.background=col; el.appendChild(d);
+    const n=document.createElement('div'); n.className='nm';
+    const parts=p.name.split(' '); n.textContent = parts[0]+' '+parts[1][0]+'.';
+    n.title=`${p.name} · ${p.perfil}\nAdopción ${f0(p.adop)} · KPI general ${p.kgen.toFixed(1)}%`;
+    n.style.color=col; el.appendChild(n);
+    const w=n.offsetWidth, h=n.offsetHeight;
+    let lx = x+10, ly = y-h/2;
+    if (lx+w > W-6) lx = x-10-w;
+    labels.push({n,x,y,w,h,lx,ly});
+  });
+  // separar etiquetas que se enciman
+  for(let it=0; it<120; it++){
+    let moved=false;
+    for(let i=0;i<labels.length;i++) for(let j=i+1;j<labels.length;j++){
+      const a=labels[i], b=labels[j];
+      const ox = Math.min(a.lx+a.w,b.lx+b.w)-Math.max(a.lx,b.lx);
+      const oy = Math.min(a.ly+a.h,b.ly+b.h)-Math.max(a.ly,b.ly);
+      if(ox>0 && oy>0){ const s=(oy/2)+1; if(a.ly<b.ly){a.ly-=s;b.ly+=s;}else{a.ly+=s;b.ly-=s;} moved=true; }
+    }
+    labels.forEach(l=>{ l.ly=Math.max(4,Math.min(H-l.h-4,l.ly)); });
+    if(!moved) break;
+  }
+  labels.forEach(l=>{
+    l.n.style.left=l.lx+'px'; l.n.style.top=l.ly+'px';
+    const tx = l.lx> l.x ? l.lx : l.lx+l.w, ty=l.ly+l.h/2;
+    const dx=tx-l.x, dy=ty-l.y, len=Math.hypot(dx,dy);
+    if(len>14){ const ln=document.createElement('div'); ln.className='lead'; ln.style.left=l.x+'px'; ln.style.top=l.y+'px'; ln.style.width=len+'px'; ln.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`; el.appendChild(ln); }
+  });
+}
+
+render();
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(render,150);});
+</script>
+</body>
+</html>
